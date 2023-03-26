@@ -1,9 +1,9 @@
 originalImage = imread('image2.png');
 grayImage= rgb2gray(originalImage);
 figure("NumberTitle","off","Name","BitSlicing and Histogram")
-slicedImage = graySlice(grayImage,8);
+slicedImage = bitSlice(grayImage,8);
 for(i=1:8)
-slicedImage = graySlice(grayImage,i);
+slicedImage = bitSlice(grayImage,i);
 subplot(2,4,i);
 imshow(slicedImage);
 title("Sliced bit number: "+i);
@@ -32,7 +32,7 @@ frequency = histc(vector,[0:255]); %function histc counts the frequency of value
 sk = round(255/(M*N) * cumsum(frequency)); %L-1/(M*N) * Sgima(Cummlative sum) of frequencies 
 result = uint8(changem(image,sk,([0:255]))); %map the pixel values in the image to sk (new values calulated with contrast stretching)
 end
-function result= graySlice(image,b)
+function result= bitSlice(image,b)
 
 result = bitand(2^(b-1),double(image));
 
