@@ -1,16 +1,42 @@
-originalImage = imread('noise.jpg');
+originalImage = imread('image.jpg');
 grayImage= rgb2gray(originalImage);
-subplot(1,3,1)
+subplot(1,4,1)
 imshow(grayImage);
 title("Original");
-subplot(1,3,2);
+subplot(1,4,2);
 enhancedImage = averageFilter(grayImage,5);
 imshow(enhancedImage);
 title("Average");
-subplot(1,3,3);
+subplot(1,4,3);
 enhancedImage = medianFilter(grayImage,21);
 imshow(enhancedImage);
 title("Median");
+subplot(1,4,4);
+enhancedImage = laplacian(grayImage,false);
+imshow(enhancedImage);
+title("2nd Derivative");
+
+function result = laplacian(image,composite) % 2nd derivative of the image if composite is true it uses composite laplace 
+% which subtracts the 2nd derivative from original image leading to highlighted edgeds
+image=double(image);
+if(nargin<2)
+    composite=false;
+end
+[r,c] = size(image);
+for(i=2:r-1)
+    for(j=2:c-1)
+        if(~composite)
+        result(i,j)= (image(i,j-1)+image(i,j+1)+image(i+1,j)+image(i-1,j)- 4*image(i,j));
+        else
+        result(i,j)= 5*double(image(i,j))- image(i,j-1)-image(i,j+1)-image(i+1,j)-image(i-1,j) ;
+        end
+    end
+end
+result = uint8(result);
+
+    
+
+end
 function result = medianFilter(image,n)
 [r,c] = size(image);
 result = image;
