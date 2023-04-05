@@ -16,6 +16,49 @@ enhancedImage = laplacian(grayImage,false);
 imshow(enhancedImage);
 title("2nd Derivative");
 
+figure("Name","first derivative");
+subplot(1,2,1)
+imageEdges = robert(grayImage);
+imshow(imageEdges);
+title("ROBERTS")
+subplot(1,2,2)
+imageEdges = sobel(grayImage);
+imshow(imageEdges);
+title("SOBEL")
+
+%edge detection using first derivatives
+function result = robert(image) %first derivative using robert operators (noise sensitive poor detection)
+image= double(image);
+
+result = image;
+[r,c] = size(image);
+for(i=1:r-1)
+    for(j=1:c-1)
+        result(i,j)= (image(i+1,j+1)-image(i,j)) + ( image(i+1,j)-image(i,j+1)); %applied the following mask
+        %-1 0  +  0 -1
+        % 0 1     1  0
+    end
+end
+result =uint8(result);
+end
+
+function result = sobel(image) %first derivative using sobel operators (less  noise sensitivity and better detection)
+image= double(image);
+result = image;
+[r,c] = size(image);
+for(i=2:r-1)
+    for(j=2:c-1)
+        x= (-image(i-1,j-1) - 2* image(i-1,j)  - image(i,j+1)) +(image(i+1,j-1) + 2* image(i+1,j)  + image(i+1,j+1)); 
+        y = (-image(i-1,j-1) - 2* image(i,j-1)  - image(i+1,j-1)) +(image(i-1,j+1) + 2* image(i,j+1)  + image(i+1,j+1)); 
+        result(i,j) = x+y;
+    end
+end
+result =uint8(result);
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Ridge detection using 2nd derivative
+
 function result = laplacian(image,composite) % 2nd derivative of the image if composite is true it uses composite laplace 
 % which subtracts the 2nd derivative from original image leading to highlighted edgeds
 image=double(image);
@@ -37,12 +80,14 @@ result = uint8(result);
     
 
 end
+
+%smoothing operations
+
 function result = medianFilter(image,n)
 [r,c] = size(image);
 result = image;
 temp = zeros(1,n*n);
 for(i=1:r)
-    i
     for(j=1:c)
           t=1;
         for(x=i-((n-1)/2):i+((n-1)/2))
