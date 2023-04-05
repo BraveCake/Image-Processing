@@ -10,4 +10,4 @@ disclaimer the purpose of this repository is showing the implementation of vario
 4. [Histogram, Histogram Equalization and bit slicing](bitSlicingAndhistogram.m)
 5. [Gray level slicing and Thresholding](ThresholdingAndGrayslicing.m)
 6. [Simple object detection using subtraction](objectDetection.m)
-7. [Smoothing: Average, min,max and median filters. Sharpening: second derivative (laplacian)](NeighbourhoodOperations.m)
+7. [Smoothing: Average, min,max and median filters. Sharpening: second derivative (laplacian) and first derivative (roberts- sobel edge detection)](NeighbourhoodOperations.m)
