@@ -193,10 +193,10 @@ end
 function result = maxFilter(image,n)
 [r,c] = size(image);
 result = zeros(r,c);
+temp = zeros(n*n,1);
 for i=1:r
     i
     for j=1:c
-        temp = zeros(n,1);
         z = 1;
         for x=max(1,i-floor(n/2)):min(r,i+floor(n/2))
             for y=max(1,j-floor(n/2)):min(c,j+floor(n/2))
@@ -204,7 +204,7 @@ for i=1:r
                 z = z + 1;
             end
         end
-        result(i,j) = max(temp);
+        result(i,j) = max(temp(:));
     end
 end
 end
@@ -212,10 +212,10 @@ end
 function result = minFilter(image,n) 
 [r,c] = size(image);
 result = zeros(r,c);
+temp = zeros(n*n,1);
 for i=1:r
-    i
+    i;
     for j=1:c
-        temp = zeros(n,1);
         z = 1;
         for x=max(1,i-floor(n/2)):min(r,i+floor(n/2))
             for y=max(1,j-floor(n/2)):min(c,j+floor(n/2))
@@ -223,7 +223,7 @@ for i=1:r
                 z = z + 1;
             end
         end
-        result(i,j) = min(temp);
+        result(i,j) = min(temp(:));
     end
 end
 end
@@ -281,6 +281,241 @@ result =uint8(result);
 
 end
 
-%method19
+%method(s)19
+function compareFourier(img,img2)
+FT_img = fft2(img);
+FT_img2= fft2(img2);
+FT_img = log(abs(FT_img)+1);
+FT_img2 = log(abs(FT_img2)+1);
+shiftedImg = Filters.myfftshift(FT_img);
+shiftedImg2 = Filters.myfftshift(FT_img2);
+subplot(1,2,1);
+imshow(shiftedImg,[],'initialMagnification','fit')
+title('original');
+subplot(1,2,2);
+imshow(shiftedImg2,[],'initialMagnification','fit')
+title('modified');
+end
+function Fshifted = myfftshift(F)
+% Apply an FFT shift to the Fourier transform F of an image
+[M,N] = size(F);
+p = floor((M+1)/2);
+q = floor((N+1)/2);
+Fshifted = zeros(M,N);
+Fshifted(1:p,1:q) = F(M-p+1:M,N-q+1:N);
+Fshifted(1:p,q+1:N) = F(M-p+1:M,1:N-q);
+Fshifted(p+1:M,1:q) = F(1:M-p,N-q+1:N);
+Fshifted(p+1:M,q+1:N) = F(1:M-p,1:N-q);
+end
+
+
+
+
+%method(s)20
+function result = ILPF(img,D0)
+[M, N] = size(img);
+FT_img = fft2(double(img));
+
+% Designing filter
+u = 0:(M-1);
+idx = find(u>M/2);
+u(idx) = u(idx)-M;
+v = 0:(N-1);
+idy = find(v>N/2);
+v(idy) = v(idy)-N;
+
+% MATLAB library function meshgrid(v, u) returns
+% 2D grid which contains the coordinates of vectors
+% v and u. Matrix V with each row is a copy 
+% of v, and matrix U with each column is a copy of u
+[V, U] = meshgrid(v, u);
+  
+% Calculating Euclidean Distance
+D = sqrt(U.^2+V.^2);
+  
+% Comparing with the cut-off frequency and 
+% determining the filtering mask
+H = double(D <= D0);
+  
+% Convolution between the Fourier Transformed
+% image and the mask
+G = H.*FT_img;
+  
+% Getting the resultant image by Inverse Fourier Transform
+% of the convoluted image using MATLAB library function 
+% ifft2 (2D inverse fast fourier transform)  
+result = uint8(real(ifft2(double(G))));
+end
+function result = IHPF(img,D0)
+[M, N] = size(img);
+FT_img = fft2(double(img));
+
+% Designing filter
+u = 0:(M-1);
+idx = find(u>M/2);
+u(idx) = u(idx)-M;
+v = 0:(N-1);
+idy = find(v>N/2);
+v(idy) = v(idy)-N;
+
+% MATLAB library function meshgrid(v, u) returns
+% 2D grid which contains the coordinates of vectors
+% v and u. Matrix V with each row is a copy 
+% of v, and matrix U with each column is a copy of u
+[V, U] = meshgrid(v, u);
+  
+% Calculating Euclidean Distance
+D = sqrt(U.^2+V.^2);
+  
+% Comparing with the cut-off frequency and 
+% determining the filtering mask
+H = double(D >= D0);
+  
+% Convolution between the Fourier Transformed
+% image and the mask
+G = H.*FT_img;
+  
+% Getting the resultant image by Inverse Fourier Transform
+% of the convoluted image using MATLAB library function 
+% ifft2 (2D inverse fast fourier transform)  
+result = uint8(real(ifft2(double(G))));
+end
+function result = BLPF(img,D0)
+[M, N] = size(img);
+FT_img = fft2(double(img));
+
+% Designing filter
+u = 0:(M-1);
+idx = find(u>M/2);
+u(idx) = u(idx)-M;
+v = 0:(N-1);
+idy = find(v>N/2);
+v(idy) = v(idy)-N;
+
+% MATLAB library function meshgrid(v, u) returns
+% 2D grid which contains the coordinates of vectors
+% v and u. Matrix V with each row is a copy 
+% of v, and matrix U with each column is a copy of u
+[V, U] = meshgrid(v, u);
+n= 2*2;
+  % Calculating Euclidean Distance
+ D = sqrt(U.^2+V.^2); 
+ D = D./ D0;
+ % Comparing with the cut-off frequency and 
+ % determining the filtering mask
+ H = 1./((1+D).^n);
+%   
+% Convolution between the Fourier Transformed
+% image and the mask
+ G = H.*FT_img;
+  
+  
+% Getting the resultant image by Inverse Fourier Transform
+% of the convoluted image using MATLAB library function 
+% ifft2 (2D inverse fast fourier transform)  
+result = uint8(real(ifft2(double(G))));
+end
+function result = BHPF(img,D0)
+[M, N] = size(img);
+FT_img = fft2(double(img));
+
+% Designing filter
+u = 0:(M-1);
+idx = find(u>M/2);
+u(idx) = u(idx)-M;
+v = 0:(N-1);
+idy = find(v>N/2);
+v(idy) = v(idy)-N;
+
+% MATLAB library function meshgrid(v, u) returns
+% 2D grid which contains the coordinates of vectors
+% v and u. Matrix V with each row is a copy 
+% of v, and matrix U with each column is a copy of u
+[V, U] = meshgrid(v, u);
+n= 2*2;
+  % Calculating Euclidean Distance
+ D = sqrt(U.^2+V.^2); 
+ D = D0./D;
+ % Comparing with the cut-off frequency and 
+ % determining the filtering mask
+ H = 1./((1+D).^n);
+%   
+% Convolution between the Fourier Transformed
+% image and the mask
+ G = H.*FT_img;
+  
+  
+% Getting the resultant image by Inverse Fourier Transform
+% of the convoluted image using MATLAB library function 
+% ifft2 (2D inverse fast fourier transform)  
+result = uint8(real(ifft2(double(G))));
+end
+function result = GLPF(img, D0)
+    [M, N] = size(img);
+    FT_img = fft2(double(img));
+    
+    % Designing filter
+    u = 0:(M-1);
+    idx = find(u > M/2);
+    u(idx) = u(idx) - M;
+    v = 0:(N-1);
+    idy = find(v > N/2);
+    v(idy) = v(idy) - N;
+    
+    % MATLAB library function meshgrid(v, u) returns
+    % 2D grid which contains the coordinates of vectors
+    % v and u. Matrix V with each row is a copy 
+    % of v, and matrix U with each column is a copy of u
+    [V, U] = meshgrid(v, u);
+      
+    % Calculating Euclidean Distance
+    D = sqrt(U.^2 + V.^2);
+      
+    % Gaussian Lowpass Filter
+    H = exp(-(D.^2) / (2 * D0^2));
+    
+    % Convolution between the Fourier Transformed
+    % image and the filter
+    G = H .* FT_img;
+    
+    % Getting the resultant image by Inverse Fourier Transform
+    % of the convoluted image using MATLAB library function 
+    % ifft2 (2D inverse fast Fourier transform)  
+    result = uint8(real(ifft2(double(G))));
+end
+
+function result = GHPF(img, D0)
+    [M, N] = size(img);
+    FT_img = fft2(double(img));
+    
+    % Designing filter
+    u = 0:(M-1);
+    idx = find(u > M/2);
+    u(idx) = u(idx) - M;
+    v = 0:(N-1);
+    idy = find(v > N/2);
+    v(idy) = v(idy) - N;
+    
+    % MATLAB library function meshgrid(v, u) returns
+    % 2D grid which contains the coordinates of vectors
+    % v and u. Matrix V with each row is a copy 
+    % of v, and matrix U with each column is a copy of u
+    [V, U] = meshgrid(v, u);
+      
+    % Calculating Euclidean Distance
+    D = sqrt(U.^2 + V.^2);
+      
+    % Gaussian Highpass Filter
+    H = 1 - exp(-(D.^2) / (2 * D0^2));
+    
+    % Convolution between the Fourier Transformed
+    % image and the filter
+    G = H .* FT_img;
+    
+    % Getting the resultant image by Inverse Fourier Transform
+    % of the convoluted image using MATLAB library function 
+    % ifft2 (2D inverse fast Fourier transform)  
+    result = uint8(real(ifft2(double(G))));
+end
     end %end of static methods
 end
