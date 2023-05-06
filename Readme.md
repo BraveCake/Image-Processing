@@ -11,3 +11,5 @@ disclaimer the purpose of this repository is showing the implementation of vario
 5. [Gray level slicing and Thresholding](ThresholdingAndGrayslicing.m)
 6. [Simple object detection using subtraction](objectDetection.m)
 7. [Smoothing: Average, min,max and median filters. Sharpening: second derivative (laplacian) and first derivative (roberts- sobel edge detection)](NeighbourhoodOperations.m)
+8. [Frequency domain filtering: Ideal low pass filtering, Ideal high pass filtering, Bitterwise and Gaussian Filtering ](FrequencyDomain.m) 
+9. [Course project: a graphical user interface application provides +30 filters/operations in addition to histogram and Z/Fourier domain visualisation](ProjectSource.m)
