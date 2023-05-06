@@ -207,12 +207,13 @@ for i=1:r
         result(i,j) = max(temp(:));
     end
 end
+result = uint8(result);
 end
 %method15
 function result = minFilter(image,n) 
 [r,c] = size(image);
 result = zeros(r,c);
-temp = zeros(n*n,1);
+temp = zeros(n*n,1)+255;
 for i=1:r
     i;
     for j=1:c
@@ -226,6 +227,7 @@ for i=1:r
         result(i,j) = min(temp(:));
     end
 end
+result = uint8(result);
 end
 
 %method16
